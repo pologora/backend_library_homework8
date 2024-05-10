@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Book = void 0;
 const db_1 = require("../db/db");
 class Book {
-    constructor(title, author, price, availability, id) {
+    constructor({ title, author, price, quantity, id }) {
         this.title = title;
         this.author = author;
         this.price = price;
-        this.availability = availability;
         this.id = id;
+        this.quantity = quantity;
     }
     static getAllbooks() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,8 +40,18 @@ class Book {
     }
     static createBook(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = 'insert into books (id) values(0)';
-            yield db_1.pool.execute(query);
+            try {
+                const props = Object.keys(data).join(', ');
+                const values = Object.values(data);
+                const placeholders = values.map(() => '?').join(', ');
+                const query = `insert into books (${props}) values(${placeholders})`;
+                const result = yield db_1.pool.execute(query, values);
+                return result;
+            }
+            catch (error) {
+                console.error('Error creating book:', error);
+                throw new Error('Failed to create book. Please try again later.');
+            }
         });
     }
     static deleteBook(id) {
@@ -58,10 +68,23 @@ class Book {
     }
     static updateBook(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { id: newId } = data;
-            const query = 'update books set id = ? where id = ?';
-            yield db_1.pool.execute(query, [newId, id]);
+            try {
+                const propValues = Object.values(data);
+                const updateString = this.createUpdateString(data);
+                const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
+                const result = yield db_1.pool.execute(query, [...propValues, id]);
+                return result;
+            }
+            catch (error) {
+                console.error('Error updating book:', error);
+                throw new Error('Failed to update book. Please try again later.');
+            }
         });
+    }
+    static createUpdateString(data) {
+        const props = Object.keys(data);
+        const updateValues = props.map((prop) => `${prop} = ?`).join(', ');
+        return updateValues;
     }
 }
 exports.Book = Book;

@@ -15,20 +15,18 @@ export async function getBookById(req: Request, res: Response, next: NextFunctio
 }
 
 export async function createNewBook(req: Request, res: Response, next: NextFunction) {
-  const { data } = req.body;
-  await Book.createBook(data);
+  const {
+    data: { price, author, quantity, title },
+  }: { data: Book } = req.body;
 
-  res.status(201).json({ message: 'success', data });
+  const book = new Book({ price, author, quantity, title });
+
+  const result = await Book.createBook(book);
+
+  res.status(201).json({ message: 'success', data: result });
 }
 
 export async function updateBook(req: Request, res: Response, next: NextFunction) {
-  const { id } = req.params;
-  const { id: newId } = req.body;
-  console.log(newId);
-  console.log(id);
-
-  await Book.updateBook(Number(id), { id: newId });
-
   res.status(200).json({ message: 'success' });
 }
 

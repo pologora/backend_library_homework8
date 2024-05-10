@@ -28,19 +28,15 @@ function getBookById(req, res, next) {
 exports.getBookById = getBookById;
 function createNewBook(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { data } = req.body;
-        yield Book_1.Book.createBook(data);
-        res.status(201).json({ message: 'success', data });
+        const { data: { price, author, quantity, title }, } = req.body;
+        const book = new Book_1.Book({ price, author, quantity, title });
+        const result = yield Book_1.Book.createBook(book);
+        res.status(201).json({ message: 'success', data: result });
     });
 }
 exports.createNewBook = createNewBook;
 function updateBook(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        const { id: newId } = req.body;
-        console.log(newId);
-        console.log(id);
-        yield Book_1.Book.updateBook(Number(id), { id: newId });
         res.status(200).json({ message: 'success' });
     });
 }
