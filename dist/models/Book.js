@@ -19,16 +19,16 @@ class Book {
         this.price = price;
         this.quantity = quantity;
     }
-    static getAllbooks() {
+    static getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = 'select * from books';
+            const query = 'SELECT * FROM books';
             const [rows] = yield db_1.pool.query(query);
             return rows;
         });
     }
-    static getBook(id) {
+    static getOne(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = 'select * from books where id = ?';
+            const query = 'SELECT * FROM books WHERE id = ?';
             const [rows] = yield db_1.pool.execute(query, [id]);
             if (!rows.length) {
                 throw new AppError_1.AppError(`Provided id: ${id} was not found`, 404);
@@ -36,13 +36,13 @@ class Book {
             return rows[0];
         });
     }
-    static createBook(data) {
+    static createOne(data) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateCreatingData(data);
             const props = Object.keys(data).join(', ');
             const values = Object.values(data);
             const placeholders = values.map(() => '?').join(', ');
-            const query = `insert into books (${props}) values(${placeholders})`;
+            const query = `INSERT INTO books (${props}) values(${placeholders})`;
             const [result] = yield db_1.pool.execute(query, values);
             if (!result.affectedRows) {
                 throw new AppError_1.AppError('No recods was created. Please check your data and try again.');
@@ -50,7 +50,7 @@ class Book {
             return result;
         });
     }
-    static deleteBook(id) {
+    static deleteOne(id) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateBookId(id);
             const query = 'DELETE FROM books WHERE id = ?';
@@ -60,11 +60,11 @@ class Book {
             }
         });
     }
-    static updateBook(id, data) {
+    static updateOne(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateBookId(id);
             const propValues = Object.values(data).filter((value) => value != null);
-            const updateString = this.createUpdateString(data);
+            const updateString = this.generateUpdateQuery(data);
             const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
             const [result] = yield db_1.pool.execute(query, [...propValues, id]);
             if (!result.affectedRows) {
@@ -72,7 +72,7 @@ class Book {
             }
         });
     }
-    static createUpdateString(data) {
+    static generateUpdateQuery(data) {
         const updateValues = Object.entries(data)
             .filter(([_, value]) => value != null)
             .map(([key]) => `${key} = ?`)

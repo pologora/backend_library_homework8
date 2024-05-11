@@ -13,28 +13,28 @@ exports.deleteBook = exports.updateBook = exports.createNewBook = exports.getBoo
 const Book_1 = require("../models/Book");
 const withErrorHandling_1 = require("../middleware/withErrorHandling");
 exports.getAllbooks = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield Book_1.Book.getAllbooks();
+    const result = yield Book_1.Book.getAll();
     res.status(200).json({ status: 'success', data: result });
 }));
 exports.getBookById = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield Book_1.Book.getBook(Number(id));
+    const result = yield Book_1.Book.getOne(Number(id));
     res.status(200).json({ status: 'success', data: result });
 }));
 exports.createNewBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { price, author, quantity, title } = req.body;
     const book = new Book_1.Book({ price, author, quantity, title });
-    yield Book_1.Book.createBook(book);
+    yield Book_1.Book.createOne(book);
     res.status(201).json({ status: 'success' });
 }));
 exports.updateBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { price, author, quantity, title } = req.body;
-    yield Book_1.Book.updateBook(Number(id), { price, author, quantity, title });
+    yield Book_1.Book.updateOne(Number(id), { price, author, quantity, title });
     res.status(204).end();
 }));
 exports.deleteBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    yield Book_1.Book.deleteBook(Number(id));
+    yield Book_1.Book.deleteOne(Number(id));
     res.status(204).end();
 }));

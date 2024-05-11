@@ -29,15 +29,15 @@ export class Book {
     this.quantity = quantity;
   }
 
-  static async getAllbooks() {
-    const query = 'select * from books';
+  static async getAll() {
+    const query = 'SELECT * FROM books';
     const [rows] = await pool.query(query);
 
     return rows as Book[];
   }
 
-  static async getBook(id: number) {
-    const query = 'select * from books where id = ?';
+  static async getOne(id: number) {
+    const query = 'SELECT * FROM books WHERE id = ?';
     const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
 
     if (!rows.length) {
@@ -47,14 +47,14 @@ export class Book {
     return rows[0] as Book;
   }
 
-  static async createBook(data: Book) {
+  static async createOne(data: Book) {
     this.validateCreatingData(data);
 
     const props = Object.keys(data).join(', ');
     const values = Object.values(data);
     const placeholders = values.map(() => '?').join(', ');
 
-    const query = `insert into books (${props}) values(${placeholders})`;
+    const query = `INSERT INTO books (${props}) values(${placeholders})`;
     const [result] = await pool.execute<ResultSetHeader>(query, values);
 
     if (!result.affectedRows) {
@@ -64,7 +64,7 @@ export class Book {
     return result;
   }
 
-  static async deleteBook(id: number) {
+  static async deleteOne(id: number) {
     this.validateBookId(id);
 
     const query = 'DELETE FROM books WHERE id = ?';
@@ -76,11 +76,11 @@ export class Book {
     }
   }
 
-  static async updateBook(id: number, data: UpdateBookData) {
+  static async updateOne(id: number, data: UpdateBookData) {
     this.validateBookId(id);
 
     const propValues = Object.values(data).filter((value) => value != null);
-    const updateString = this.createUpdateString(data);
+    const updateString = this.generateUpdateQuery(data);
 
     const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
 
@@ -91,7 +91,7 @@ export class Book {
     }
   }
 
-  private static createUpdateString(data: UpdateBookData) {
+  private static generateUpdateQuery(data: UpdateBookData) {
     const updateValues = Object.entries(data)
       .filter(([_, value]) => value != null)
       .map(([key]) => `${key} = ?`)

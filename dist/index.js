@@ -7,6 +7,11 @@ const express_1 = __importDefault(require("express"));
 const booksRouter_1 = require("./routes/booksRouter");
 const AppError_1 = require("./utils/AppError");
 const errorController_1 = require("./controllers/errorController");
+process.on('uncaughtException', (err) => {
+    console.error(err.name, err.message);
+    console.log('UNHANDLER EXEPTION! Shutting down...');
+    process.exit(1);
+});
 const port = process.env.PORT || 8000;
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -16,6 +21,13 @@ app.use('*', (req, res, next) => {
     next(error);
 });
 app.use(errorController_1.globalErrorHandler);
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App listening port ${port}`);
+});
+process.on('unhandledRejection', (err) => {
+    console.error(err.name, err.message);
+    console.log('UNHANDLER REJECTION! Shutting down...');
+    server.close(() => {
+        process.exit(1);
+    });
 });
