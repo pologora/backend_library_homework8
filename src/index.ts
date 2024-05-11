@@ -3,6 +3,13 @@ import { booksRouter } from './routes/booksRouter';
 import { AppError } from './utils/AppError';
 import { globalErrorHandler } from './controllers/errorController';
 
+process.on('uncaughtException', (err) => {
+  console.error(err.name, err.message);
+  console.log('UNHANDLER EXEPTION! Shutting down...');
+
+  process.exit(1);
+});
+
 const port = process.env.PORT || 8000;
 
 const app = express();
@@ -17,6 +24,15 @@ app.use('*', (req: Request, res: Response, next: NextFunction) => {
 
 app.use(globalErrorHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App listening port ${port}`);
+});
+
+process.on('unhandledRejection', (err: Error) => {
+  console.error(err.name, err.message);
+  console.log('UNHANDLER REJECTION! Shutting down...');
+
+  server.close(() => {
+    process.exit(1);
+  });
 });
