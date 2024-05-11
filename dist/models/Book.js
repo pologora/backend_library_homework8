@@ -11,12 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Book = void 0;
 const db_1 = require("../db/db");
+const AppError_1 = require("../utils/AppError");
 class Book {
-    constructor({ title, author, price, quantity, id }) {
+    constructor({ title, author, price, quantity = 0 }) {
         this.title = title;
         this.author = author;
         this.price = price;
-        this.id = id;
         this.quantity = quantity;
     }
     static getAllbooks() {
@@ -28,63 +28,76 @@ class Book {
     }
     static getBook(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const query = 'select * from books where id = ?';
-                const [rows] = yield db_1.pool.execute(query, [id]);
-                return rows[0];
+            const query = 'select * from books where id = ?';
+            const [rows] = yield db_1.pool.execute(query, [id]);
+            if (!rows.length) {
+                throw new AppError_1.AppError(`Provided id: ${id} was not found`, 404);
             }
-            catch (error) {
-                console.log(error);
-            }
+            return rows[0];
         });
     }
     static createBook(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const props = Object.keys(data).join(', ');
-                const values = Object.values(data);
-                const placeholders = values.map(() => '?').join(', ');
-                const query = `insert into books (${props}) values(${placeholders})`;
-                const result = yield db_1.pool.execute(query, values);
-                return result;
+            this.validateCreatingData(data);
+            const props = Object.keys(data).join(', ');
+            const values = Object.values(data);
+            const placeholders = values.map(() => '?').join(', ');
+            const query = `insert into books (${props}) values(${placeholders})`;
+            const [result] = yield db_1.pool.execute(query, values);
+            if (!result.affectedRows) {
+                throw new AppError_1.AppError('No recods was created. Please check your data and try again.');
             }
-            catch (error) {
-                console.error('Error creating book:', error);
-                throw new Error('Failed to create book. Please try again later.');
-            }
+            return result;
         });
     }
     static deleteBook(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const query = 'DELETE FROM books WHERE id = ?';
-                yield db_1.pool.execute(query, [id]);
-            }
-            catch (error) {
-                console.error('Error deleting book:', error);
-                throw error;
+            this.validateBookId(id);
+            const query = 'DELETE FROM books WHERE id = ?';
+            const [result] = yield db_1.pool.execute(query, [id]);
+            if (!result.affectedRows) {
+                throw new AppError_1.AppError('Nothing was deleted from database. Please check your data and try again.');
             }
         });
     }
     static updateBook(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const propValues = Object.values(data);
-                const updateString = this.createUpdateString(data);
-                const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
-                const result = yield db_1.pool.execute(query, [...propValues, id]);
-                return result;
-            }
-            catch (error) {
-                console.error('Error updating book:', error);
-                throw new Error('Failed to update book. Please try again later.');
+            this.validateBookId(id);
+            const propValues = Object.values(data).filter((value) => value != null);
+            const updateString = this.createUpdateString(data);
+            const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
+            const [result] = yield db_1.pool.execute(query, [...propValues, id]);
+            if (!result.affectedRows) {
+                throw new AppError_1.AppError('Nothing was updated. Please check your data and try again.');
             }
         });
     }
     static createUpdateString(data) {
-        const props = Object.keys(data);
-        const updateValues = props.map((prop) => `${prop} = ?`).join(', ');
+        const updateValues = Object.entries(data)
+            .filter(([_, value]) => value != null)
+            .map(([key]) => `${key} = ?`)
+            .join(', ');
         return updateValues;
+    }
+    static validateCreatingData(data) {
+        const { price, author, quantity, title } = data;
+        if (!price || price <= 0) {
+            throw new AppError_1.AppError('Error creating new book: Price is required and must be a positive number.');
+        }
+        if (!author || typeof author !== 'string') {
+            throw new AppError_1.AppError('Error creating new book: Author is required and must be a string.');
+        }
+        if (quantity < 0 || typeof quantity !== 'number') {
+            throw new AppError_1.AppError('Error creating new book: Quantity must be a non-negative number.');
+        }
+        if (!title || typeof title !== 'string') {
+            throw new AppError_1.AppError('Error creating new book: Title is required and must be a string.');
+        }
+    }
+    static validateBookId(id) {
+        if (isNaN(id) || id <= 0) {
+            throw new AppError_1.AppError('Invalid book ID. Please provide a valid positive number.');
+        }
     }
 }
 exports.Book = Book;

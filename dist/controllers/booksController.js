@@ -11,41 +11,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBook = exports.updateBook = exports.createNewBook = exports.getBookById = exports.getAllbooks = void 0;
 const Book_1 = require("../models/Book");
-function getAllbooks(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const data = yield Book_1.Book.getAllbooks();
-        res.status(200).json({ message: 'success', data });
-    });
-}
-exports.getAllbooks = getAllbooks;
-function getBookById(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        const data = yield Book_1.Book.getBook(Number(id));
-        res.status(200).json({ message: 'success', data });
-    });
-}
-exports.getBookById = getBookById;
-function createNewBook(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { data: { price, author, quantity, title }, } = req.body;
-        const book = new Book_1.Book({ price, author, quantity, title });
-        const result = yield Book_1.Book.createBook(book);
-        res.status(201).json({ message: 'success', data: result });
-    });
-}
-exports.createNewBook = createNewBook;
-function updateBook(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        res.status(200).json({ message: 'success' });
-    });
-}
-exports.updateBook = updateBook;
-function deleteBook(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
-        yield Book_1.Book.deleteBook(Number(id));
-        res.status(200).json({ message: 'success' });
-    });
-}
-exports.deleteBook = deleteBook;
+const withErrorHandling_1 = require("../middleware/withErrorHandling");
+exports.getAllbooks = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield Book_1.Book.getAllbooks();
+    res.status(200).json({ status: 'success', data: result });
+}));
+exports.getBookById = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield Book_1.Book.getBook(Number(id));
+    res.status(200).json({ status: 'success', data: result });
+}));
+exports.createNewBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { price, author, quantity, title } = req.body;
+    const book = new Book_1.Book({ price, author, quantity, title });
+    yield Book_1.Book.createBook(book);
+    res.status(201).json({ status: 'success' });
+}));
+exports.updateBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { price, author, quantity, title } = req.body;
+    yield Book_1.Book.updateBook(Number(id), { price, author, quantity, title });
+    res.status(204).end();
+}));
+exports.deleteBook = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    yield Book_1.Book.deleteBook(Number(id));
+    res.status(204).end();
+}));

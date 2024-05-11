@@ -1,38 +1,39 @@
 import { NextFunction, Response, Request } from 'express';
 import { Book } from '../models/Book';
+import { withErrorHandling } from '../middleware/withErrorHandling';
 
-export async function getAllbooks(req: Request, res: Response, next: NextFunction) {
-  const data = await Book.getAllbooks();
+export const getAllbooks = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await Book.getAllbooks();
 
-  res.status(200).json({ message: 'success', data });
-}
+  res.status(200).json({ status: 'success', data: result });
+});
 
-export async function getBookById(req: Request, res: Response, next: NextFunction) {
+export const getBookById = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
-  const data = await Book.getBook(Number(id));
+  const result = await Book.getBook(Number(id));
 
-  res.status(200).json({ message: 'success', data });
-}
+  res.status(200).json({ status: 'success', data: result });
+});
 
-export async function createNewBook(req: Request, res: Response, next: NextFunction) {
-  const {
-    data: { price, author, quantity, title },
-  }: { data: Book } = req.body;
-
+export const createNewBook = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
+  const { price, author, quantity, title }: Book = req.body;
   const book = new Book({ price, author, quantity, title });
+  await Book.createBook(book);
 
-  const result = await Book.createBook(book);
+  res.status(201).json({ status: 'success' });
+});
 
-  res.status(201).json({ message: 'success', data: result });
-}
+export const updateBook = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const { price, author, quantity, title } = req.body;
 
-export async function updateBook(req: Request, res: Response, next: NextFunction) {
-  res.status(200).json({ message: 'success' });
-}
+  await Book.updateBook(Number(id), { price, author, quantity, title });
+  res.status(204).end();
+});
 
-export async function deleteBook(req: Request, res: Response, next: NextFunction) {
+export const deleteBook = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   await Book.deleteBook(Number(id));
 
-  res.status(200).json({ message: 'success' });
-}
+  res.status(204).end();
+});
