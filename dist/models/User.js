@@ -18,6 +18,7 @@ const AppError_1 = require("../utils/AppError");
 const ValidateId_1 = require("../validation/ValidateId");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const createJWT_1 = require("../helpers/createJWT");
+const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
 class User extends ValidateId_1.ValidateId {
     constructor(name, email) {
         super();
@@ -36,9 +37,8 @@ class User extends ValidateId_1.ValidateId {
             this.validateId(id);
             const query = 'SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?';
             const [rows] = yield db_1.pool.execute(query, [id]);
-            const notFoundErrorCode = 404;
             if (!rows.length) {
-                throw new AppError_1.AppError(`Provided id: ${id} was not found`, notFoundErrorCode);
+                throw new AppError_1.AppError(`Provided id: ${id} was not found`, httpStatusCodes_1.httpStatusCodes.notFound);
             }
             return rows[0];
         });
@@ -75,7 +75,7 @@ class User extends ValidateId_1.ValidateId {
     static login(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, password }) {
             if (!email || !password) {
-                throw new AppError_1.AppError('Email and password are required');
+                throw new AppError_1.AppError('Email and password are required', httpStatusCodes_1.httpStatusCodes.unauthorized);
             }
             const query = 'SELECT id, password FROM users WHERE email = ?';
             const [result] = yield db_1.pool.execute(query, [email]);
@@ -85,7 +85,7 @@ class User extends ValidateId_1.ValidateId {
                 return (0, createJWT_1.createJWTToken)(id);
             }
             else {
-                throw new AppError_1.AppError('Wrong email or password.');
+                throw new AppError_1.AppError('Wrong email or password.', httpStatusCodes_1.httpStatusCodes.unauthorized);
             }
         });
     }

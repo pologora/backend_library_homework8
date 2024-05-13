@@ -4,6 +4,7 @@ import { AppError } from '../utils/AppError';
 import { ValidateId } from '../validation/ValidateId';
 import bcrypt from 'bcryptjs';
 import { createJWTToken } from '../helpers/createJWT';
+import { httpStatusCodes } from '../helpers/httpStatusCodes';
 
 interface CreateUserData {
   email: string;
@@ -33,10 +34,9 @@ export class User extends ValidateId {
 
     const query = 'SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?';
     const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
-    const notFoundErrorCode = 404;
 
     if (!rows.length) {
-      throw new AppError(`Provided id: ${id} was not found`, notFoundErrorCode);
+      throw new AppError(`Provided id: ${id} was not found`, httpStatusCodes.notFound);
     }
 
     return rows[0] as User;
@@ -77,7 +77,7 @@ export class User extends ValidateId {
 
   static async login({ email, password }: { email: string; password: string }) {
     if (!email || !password) {
-      throw new AppError('Email and password are required');
+      throw new AppError('Email and password are required', httpStatusCodes.unauthorized);
     }
 
     const query = 'SELECT id, password FROM users WHERE email = ?';
@@ -89,7 +89,7 @@ export class User extends ValidateId {
     if (compare) {
       return createJWTToken(id);
     } else {
-      throw new AppError('Wrong email or password.');
+      throw new AppError('Wrong email or password.', httpStatusCodes.unauthorized);
     }
   }
 

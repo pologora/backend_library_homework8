@@ -1,9 +1,11 @@
+import { httpStatusCodes } from '../helpers/httpStatusCodes';
+
 export class AppError extends Error {
   statusCode: number;
   status: string;
   isOperational: boolean;
 
-  constructor(message: string, statusCode: number = 400) {
+  constructor(message: string, statusCode: number = httpStatusCodes.badRequest) {
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';

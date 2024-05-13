@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.globalErrorHandler = void 0;
+const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
 const sendErrDevelopment = (err, res) => {
-    const statusCode = err.statusCode || 500;
+    const statusCode = err.statusCode || httpStatusCodes_1.httpStatusCodes.internalServerError;
     const status = err.status || 'error';
     return res.status(statusCode).json({ status, error: err.message, message: err.message, stack: err.stack });
 };
 const sendErrProduction = (err, res) => {
-    const statusCode = err.statusCode || 500;
+    const statusCode = err.statusCode || httpStatusCodes_1.httpStatusCodes.internalServerError;
     const status = err.status || 'error';
     const message = err.isOperational ? err.message : 'Somthing goes wrong, please try again later';
     return res.status(statusCode).json({ status, error: message });

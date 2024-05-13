@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppError = void 0;
+const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
 class AppError extends Error {
-    constructor(message, statusCode = 400) {
+    constructor(message, statusCode = httpStatusCodes_1.httpStatusCodes.badRequest) {
         super(message);
         this.statusCode = statusCode;
         this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';

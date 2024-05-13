@@ -12,12 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.signup = void 0;
 const User_1 = require("../models/User");
 const createJWT_1 = require("../helpers/createJWT");
+const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, passwordConfirm } = req.body;
     const result = yield User_1.User.signup({ email, password, passwordConfirm });
     const id = result.insertId;
     const token = (0, createJWT_1.createJWTToken)(id);
-    res.status(201).json({
+    res.status(httpStatusCodes_1.httpStatusCodes.created).json({
         status: 'success',
         token,
         data: result,
@@ -27,7 +28,7 @@ exports.signup = signup;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const token = yield User_1.User.login({ email, password });
-    res.status(200).json({
+    res.status(httpStatusCodes_1.httpStatusCodes.success).json({
         status: 'success',
         token,
     });
