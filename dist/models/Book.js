@@ -12,8 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Book = void 0;
 const db_1 = require("../db/db");
 const AppError_1 = require("../utils/AppError");
-class Book {
+const ValidateId_1 = require("../validation/ValidateId");
+class Book extends ValidateId_1.ValidateId {
     constructor({ title, author, price, quantity = 0 }) {
+        super();
         this.title = title;
         this.author = author;
         this.price = price;
@@ -38,7 +40,7 @@ class Book {
     }
     static createOne(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.validateCreatingData(data);
+            this.validateData(data);
             const props = Object.keys(data).join(', ');
             const values = Object.values(data);
             const placeholders = values.map(() => '?').join(', ');
@@ -52,7 +54,7 @@ class Book {
     }
     static deleteOne(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.validateBookId(id);
+            this.validateId(id);
             const query = 'DELETE FROM books WHERE id = ?';
             const [result] = yield db_1.pool.execute(query, [id]);
             if (!result.affectedRows) {
@@ -62,7 +64,8 @@ class Book {
     }
     static updateOne(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.validateBookId(id);
+            this.validateId(id);
+            this.validateData(data);
             const propValues = Object.values(data).filter((value) => value != null);
             const updateString = this.generateUpdateQuery(data);
             const query = `UPDATE books SET  ${updateString} WHERE id = ?`;
@@ -79,25 +82,36 @@ class Book {
             .join(', ');
         return updateValues;
     }
-    static validateCreatingData(data) {
-        const { price, author, quantity, title } = data;
+    static validateData(data) {
+        Object.entries(data)
+            .filter(([_, value]) => value != null)
+            .forEach(([key, value]) => Book.validationMethodsMap[key](value));
+    }
+    static validatePrice(price) {
         if (!price || price <= 0) {
             throw new AppError_1.AppError('Error creating new book: Price is required and must be a positive number.');
         }
+    }
+    static validateAuthor(author) {
         if (!author || typeof author !== 'string') {
             throw new AppError_1.AppError('Error creating new book: Author is required and must be a string.');
         }
+    }
+    static validateQuantity(quantity) {
         if (quantity < 0 || typeof quantity !== 'number') {
             throw new AppError_1.AppError('Error creating new book: Quantity must be a non-negative number.');
         }
+    }
+    static validateTitle(title) {
         if (!title || typeof title !== 'string') {
             throw new AppError_1.AppError('Error creating new book: Title is required and must be a string.');
         }
     }
-    static validateBookId(id) {
-        if (isNaN(id) || id <= 0) {
-            throw new AppError_1.AppError('Invalid book ID. Please provide a valid positive number.');
-        }
-    }
 }
 exports.Book = Book;
+Book.validationMethodsMap = {
+    price: Book.validatePrice,
+    author: Book.validateAuthor,
+    quantity: Book.validateQuantity,
+    title: Book.validateTitle,
+};

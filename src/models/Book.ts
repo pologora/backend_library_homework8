@@ -1,6 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '../db/db';
 import { AppError } from '../utils/AppError';
+import { ValidateId } from '../validation/ValidateId';
 
 interface BookData {
   title: string;
@@ -16,13 +17,20 @@ interface UpdateBookData {
   quantity?: number;
 }
 
-export class Book {
+export class Book extends ValidateId {
   title: string;
   author: string;
   price: number;
   quantity: number;
+  private static validationMethodsMap: { [key: string]: (value: any) => void } = {
+    price: Book.validatePrice,
+    author: Book.validateAuthor,
+    quantity: Book.validateQuantity,
+    title: Book.validateTitle,
+  };
 
   constructor({ title, author, price, quantity = 0 }: BookData) {
+    super();
     this.title = title;
     this.author = author;
     this.price = price;
@@ -48,7 +56,7 @@ export class Book {
   }
 
   static async createOne(data: Book) {
-    this.validateCreatingData(data);
+    this.validateData(data);
 
     const props = Object.keys(data).join(', ');
     const values = Object.values(data);
@@ -65,7 +73,7 @@ export class Book {
   }
 
   static async deleteOne(id: number) {
-    this.validateBookId(id);
+    this.validateId(id);
 
     const query = 'DELETE FROM books WHERE id = ?';
 
@@ -77,7 +85,8 @@ export class Book {
   }
 
   static async updateOne(id: number, data: UpdateBookData) {
-    this.validateBookId(id);
+    this.validateId(id);
+    this.validateData(data);
 
     const propValues = Object.values(data).filter((value) => value != null);
     const updateString = this.generateUpdateQuery(data);
@@ -100,29 +109,33 @@ export class Book {
     return updateValues;
   }
 
-  private static validateCreatingData(data: Book) {
-    const { price, author, quantity, title } = data;
+  private static validateData(data: UpdateBookData) {
+    Object.entries(data)
+      .filter(([_, value]) => value != null)
+      .forEach(([key, value]) => Book.validationMethodsMap[key](value));
+  }
 
+  private static validatePrice(price: any) {
     if (!price || price <= 0) {
       throw new AppError('Error creating new book: Price is required and must be a positive number.');
     }
+  }
 
+  private static validateAuthor(author: any) {
     if (!author || typeof author !== 'string') {
       throw new AppError('Error creating new book: Author is required and must be a string.');
     }
+  }
 
+  private static validateQuantity(quantity: any) {
     if (quantity < 0 || typeof quantity !== 'number') {
       throw new AppError('Error creating new book: Quantity must be a non-negative number.');
     }
-
-    if (!title || typeof title !== 'string') {
-      throw new AppError('Error creating new book: Title is required and must be a string.');
-    }
   }
 
-  private static validateBookId(id: number) {
-    if (isNaN(id) || id <= 0) {
-      throw new AppError('Invalid book ID. Please provide a valid positive number.');
+  private static validateTitle(title: any) {
+    if (!title || typeof title !== 'string') {
+      throw new AppError('Error creating new book: Title is required and must be a string.');
     }
   }
 }

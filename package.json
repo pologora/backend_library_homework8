@@ -14,7 +14,9 @@
   "author": "Oleksandr Wojtyla",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.11",
     "concurrently": "^8.2.2",
     "nodemon": "^3.1.0",
@@ -22,7 +24,9 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.9.7"
   }
 }

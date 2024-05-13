@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { booksRouter } from './routes/booksRouter';
 import { AppError } from './utils/AppError';
 import { globalErrorHandler } from './controllers/errorController';
+import { usersRouter } from './routes/usersRouter';
 
 process.on('uncaughtException', (err) => {
   console.error(err.name, err.message);
@@ -10,12 +11,11 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-const port = process.env.PORT || 8000;
-
 const app = express();
 app.use(express.json());
 
 app.use('/api/v1/books', booksRouter);
+app.use('/api/v1/users', usersRouter);
 
 app.use('*', (req: Request, res: Response, next: NextFunction) => {
   const error = new AppError(`Can't find ${req.originalUrl} on this server!`, 404);
@@ -24,6 +24,7 @@ app.use('*', (req: Request, res: Response, next: NextFunction) => {
 
 app.use(globalErrorHandler);
 
+const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
   console.log(`App listening port ${port}`);
 });
