@@ -1,10 +1,10 @@
-import { FieldPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { pool } from '../db/db';
 import { AppError } from '../utils/AppError';
 import { ValidateId } from '../validation/ValidateId';
 import bcrypt from 'bcryptjs';
-import { createJWTToken } from '../helpers/createJWT';
-import { httpStatusCodes } from '../helpers/httpStatusCodes';
+import { httpStatusCodes } from '../utils/httpStatusCodes';
+import { createJWTToken } from '../utils/JWT';
 
 interface CreateUserData {
   email: string;
@@ -12,6 +12,13 @@ interface CreateUserData {
   passwordConfirm: string;
 }
 
+export interface GetOneUserData {
+  email: string;
+  id: number;
+  created_at: Date;
+  updated_at: Date;
+  passwordChangedAt: Date;
+}
 export class User extends ValidateId {
   name: string;
   email: string;
@@ -32,14 +39,14 @@ export class User extends ValidateId {
   static async getOne(id: number) {
     this.validateId(id);
 
-    const query = 'SELECT id, name, email, created_at, updated_at FROM users WHERE id = ?';
+    const query = 'SELECT id, name, email, created_at, updated_at, passwordChangedAt FROM users WHERE id = ?';
     const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
 
     if (!rows.length) {
       throw new AppError(`Provided id: ${id} was not found`, httpStatusCodes.notFound);
     }
 
-    return rows[0] as User;
+    return rows[0] as GetOneUserData;
   }
 
   static async updateOne(id: number) {

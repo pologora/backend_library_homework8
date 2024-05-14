@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '../models/User';
-import { httpStatusCodes } from '../helpers/httpStatusCodes';
+import { httpStatusCodes } from '../utils/httpStatusCodes';
 
-export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllUsers = async (_req: Request, res: Response, _next: NextFunction) => {
   const result = await User.getAll();
 
   res.status(httpStatusCodes.success).json({
@@ -11,7 +11,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
   });
 };
 
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (req: Request, res: Response, _next: NextFunction) => {
   const { id } = req.params;
   const result = await User.getOne(Number(id));
 
@@ -21,22 +21,22 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   });
 };
 
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUser = async (req: Request, res: Response, _next: NextFunction) => {
   const { id } = req.params;
   await User.deleteOne(Number(id));
 
   res.status(httpStatusCodes.noContent).end();
 };
 
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = async (req: Request, res: Response, _next: NextFunction) => {
   const {} = req.body;
   const { id } = req.params;
   const result = await User.updateOne(Number(id));
 
-  res.status(httpStatusCodes.noContent).json();
+  res.status(httpStatusCodes.noContent).end();
 };
 
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (req: Request, res: Response, _next: NextFunction) => {
   const { email, password } = req.body;
   const result = await User.signup({ email, password, passwordConfirm: password });
 

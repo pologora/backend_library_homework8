@@ -1,4 +1,4 @@
-import { httpStatusCodes } from '../helpers/httpStatusCodes';
+import { httpStatusCodes } from './httpStatusCodes';
 
 export class AppError extends Error {
   statusCode: number;

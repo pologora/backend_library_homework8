@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from 'express';
 import { Book } from '../models/Book';
 import { withErrorHandling } from '../middleware/withErrorHandling';
-import { httpStatusCodes } from '../helpers/httpStatusCodes';
+import { httpStatusCodes } from '../utils/httpStatusCodes';
 
 export const getAllbooks = withErrorHandling(async (req: Request, res: Response, next: NextFunction) => {
   const result = await Book.getAll();

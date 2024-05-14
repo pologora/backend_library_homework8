@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../utils/AppError';
-import { httpStatusCodes } from '../helpers/httpStatusCodes';
+import { httpStatusCodes } from '../utils/httpStatusCodes';
+
+const handleJsonWebTokenError = () => new AppError('Invalid token. Please log in again!', httpStatusCodes.unauthorized);
 
 const sendErrDevelopment = (err: AppError, res: Response) => {
   const statusCode = err.statusCode || httpStatusCodes.internalServerError;
@@ -9,6 +11,10 @@ const sendErrDevelopment = (err: AppError, res: Response) => {
 };
 
 const sendErrProduction = (err: AppError, res: Response) => {
+  if (err.name === 'JsonWebTokenError' || err.name === 'JsonExpiredError') {
+    err = handleJsonWebTokenError();
+  }
+
   const statusCode = err.statusCode || httpStatusCodes.internalServerError;
   const status = err.status || 'error';
   const message = err.isOperational ? err.message : 'Somthing goes wrong, please try again later';
@@ -16,7 +22,7 @@ const sendErrProduction = (err: AppError, res: Response) => {
   return res.status(statusCode).json({ status, error: message });
 };
 
-export const globalErrorHandler = (err: AppError, req: Request, res: Response, next: NextFunction) => {
+export const globalErrorHandler = (err: AppError, _req: Request, res: Response, _next: NextFunction) => {
   if (!err.isOperational) {
     console.log(err);
   }

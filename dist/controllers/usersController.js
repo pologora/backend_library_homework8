@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUser = exports.updateUser = exports.deleteUser = exports.getUserById = exports.getAllUsers = void 0;
 const User_1 = require("../models/User");
-const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
-const getAllUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const httpStatusCodes_1 = require("../utils/httpStatusCodes");
+const getAllUsers = (_req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield User_1.User.getAll();
     res.status(httpStatusCodes_1.httpStatusCodes.success).json({
         status: 'success',
@@ -20,7 +20,7 @@ const getAllUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     });
 });
 exports.getAllUsers = getAllUsers;
-const getUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserById = (req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield User_1.User.getOne(Number(id));
     res.status(httpStatusCodes_1.httpStatusCodes.success).json({
@@ -29,20 +29,20 @@ const getUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     });
 });
 exports.getUserById = getUserById;
-const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteUser = (req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     yield User_1.User.deleteOne(Number(id));
     res.status(httpStatusCodes_1.httpStatusCodes.noContent).end();
 });
 exports.deleteUser = deleteUser;
-const updateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = (req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     const {} = req.body;
     const { id } = req.params;
     const result = yield User_1.User.updateOne(Number(id));
-    res.status(httpStatusCodes_1.httpStatusCodes.noContent).json();
+    res.status(httpStatusCodes_1.httpStatusCodes.noContent).end();
 });
 exports.updateUser = updateUser;
-const createUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const result = yield User_1.User.signup({ email, password, passwordConfirm: password });
     const id = result.insertId;

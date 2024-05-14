@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBook = exports.updateBook = exports.createNewBook = exports.getBookById = exports.getAllbooks = void 0;
 const Book_1 = require("../models/Book");
 const withErrorHandling_1 = require("../middleware/withErrorHandling");
-const httpStatusCodes_1 = require("../helpers/httpStatusCodes");
+const httpStatusCodes_1 = require("../utils/httpStatusCodes");
 exports.getAllbooks = (0, withErrorHandling_1.withErrorHandling)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield Book_1.Book.getAll();
     res.status(httpStatusCodes_1.httpStatusCodes.success).json({ status: 'success', data: result });
