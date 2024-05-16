@@ -45,6 +45,7 @@ const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     const decoded = yield (0, helpers_1.getDecodedTokenOrThrow)(token);
     const user = yield (0, helpers_1.getUserOrThrow)(decoded.id);
     (0, helpers_1.checkPasswordWasChangedAndThrow)(decoded.iat, user);
+    Object.defineProperty(req, 'user', { value: user });
     next();
 });
 exports.protect = protect;

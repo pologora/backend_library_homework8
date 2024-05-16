@@ -19,6 +19,7 @@ export interface GetOneUserData {
   updated_at: Date;
   passwordChangedAt: Date;
 }
+
 export class User extends ValidateId {
   name: string;
   email: string;

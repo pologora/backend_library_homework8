@@ -49,5 +49,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
   checkPasswordWasChangedAndThrow(decoded.iat, user);
 
+  Object.defineProperty(req, 'user', { value: user });
+
   next();
 };
