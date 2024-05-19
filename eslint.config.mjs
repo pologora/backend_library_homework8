@@ -8,7 +8,7 @@ export default [
   ...tseslint.configs.recommended,
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: 'req|res|next' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: 'req|res|next|_' }],
     },
   },
 ];

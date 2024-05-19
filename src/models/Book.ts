@@ -3,26 +3,33 @@ import { pool } from '../db/db';
 import { AppError } from '../utils/AppError';
 import { ValidateId } from '../validation/ValidateId';
 
-interface BookData {
+export interface BookData {
   title: string;
   author: string;
   price: number;
   quantity: number;
 }
 
-interface UpdateBookData {
+export interface UpdateBookData {
   title?: string;
   author?: string;
   price?: number;
   quantity?: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ValidationFunction = (value: any) => void;
+
 export class Book extends ValidateId {
   title: string;
   author: string;
   price: number;
   quantity: number;
-  private static validationMethodsMap: { [key: string]: (value: any) => void } = {
+
+  /**
+   * Map to store validation methods for a class properties
+   */
+  protected static validationMethodsMap: { [key: string]: ValidationFunction } = {
     price: Book.validatePrice,
     author: Book.validateAuthor,
     quantity: Book.validateQuantity,
@@ -37,6 +44,10 @@ export class Book extends ValidateId {
     this.quantity = quantity;
   }
 
+  /**
+   *
+   * @returns all books from database
+   */
   static async getAll() {
     const query = 'SELECT * FROM books';
     const [rows] = await pool.query(query);
@@ -44,6 +55,11 @@ export class Book extends ValidateId {
     return rows as Book[];
   }
 
+  /**
+   *
+   * @param id uniq book id
+   * @returns book from database or throw an error if no book was found
+   */
   static async getOne(id: number) {
     const query = 'SELECT * FROM books WHERE id = ?';
     const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
@@ -55,6 +71,11 @@ export class Book extends ValidateId {
     return rows[0] as Book;
   }
 
+  /**
+   *
+   * @param data all fields needed for a new book creation
+   * @returns  info about new book creation or throw an error
+   */
   static async createOne(data: Book) {
     this.validateData(data);
 
@@ -72,6 +93,11 @@ export class Book extends ValidateId {
     return result;
   }
 
+  /**
+   * Delete a book from database
+   * @param id book id
+   * @returns void or throw an error
+   */
   static async deleteOne(id: number) {
     this.validateId(id);
 
@@ -84,6 +110,12 @@ export class Book extends ValidateId {
     }
   }
 
+  /**
+   * Update a book
+   * @param id book unique id
+   * @param data new data for a book fields to update
+   * @returns void or throw an error
+   */
   static async updateOne(id: number, data: UpdateBookData) {
     this.validateId(id);
     this.validateData(data);
@@ -100,6 +132,11 @@ export class Book extends ValidateId {
     }
   }
 
+  /**
+   *
+   * @param data updated values for a book update
+   * @returns part of a SQL query needed for a update, (key = value) pairs
+   */
   private static generateUpdateQuery(data: UpdateBookData) {
     const updateValues = Object.entries(data)
       .filter(([_, value]) => value != null)
@@ -109,31 +146,37 @@ export class Book extends ValidateId {
     return updateValues;
   }
 
-  private static validateData(data: UpdateBookData) {
+  /**
+   *
+   * @param data values for a book creation or update
+   * @param validationMethodsMap list of a methods needed for a validation, maped by class properties (prop: function)
+   * @returns void or throw an error if one of the validation methods fails
+   */
+  protected static validateData(data: UpdateBookData, validationMethodsMap = this.validationMethodsMap) {
     Object.entries(data)
       .filter(([_, value]) => value != null)
-      .forEach(([key, value]) => Book.validationMethodsMap[key](value));
+      .forEach(([key, value]) => validationMethodsMap[key](value));
   }
 
-  private static validatePrice(price: any) {
+  private static validatePrice(price: number) {
     if (!price || price <= 0) {
       throw new AppError('Error creating new book: Price is required and must be a positive number.');
     }
   }
 
-  private static validateAuthor(author: any) {
+  private static validateAuthor(author: string) {
     if (!author || typeof author !== 'string') {
       throw new AppError('Error creating new book: Author is required and must be a string.');
     }
   }
 
-  private static validateQuantity(quantity: any) {
+  private static validateQuantity(quantity: number) {
     if (quantity < 0 || typeof quantity !== 'number') {
       throw new AppError('Error creating new book: Quantity must be a non-negative number.');
     }
   }
 
-  private static validateTitle(title: any) {
+  private static validateTitle(title: string) {
     if (!title || typeof title !== 'string') {
       throw new AppError('Error creating new book: Title is required and must be a string.');
     }

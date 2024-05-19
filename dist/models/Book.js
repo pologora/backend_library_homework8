@@ -21,6 +21,10 @@ class Book extends ValidateId_1.ValidateId {
         this.price = price;
         this.quantity = quantity;
     }
+    /**
+     *
+     * @returns all books from database
+     */
     static getAll() {
         return __awaiter(this, void 0, void 0, function* () {
             const query = 'SELECT * FROM books';
@@ -28,6 +32,11 @@ class Book extends ValidateId_1.ValidateId {
             return rows;
         });
     }
+    /**
+     *
+     * @param id uniq book id
+     * @returns book from database or throw an error if no book was found
+     */
     static getOne(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = 'SELECT * FROM books WHERE id = ?';
@@ -38,6 +47,11 @@ class Book extends ValidateId_1.ValidateId {
             return rows[0];
         });
     }
+    /**
+     *
+     * @param data all fields needed for a new book creation
+     * @returns  info about new book creation or throw an error
+     */
     static createOne(data) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateData(data);
@@ -52,6 +66,11 @@ class Book extends ValidateId_1.ValidateId {
             return result;
         });
     }
+    /**
+     * Delete a book from database
+     * @param id book id
+     * @returns void or throw an error
+     */
     static deleteOne(id) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateId(id);
@@ -62,6 +81,12 @@ class Book extends ValidateId_1.ValidateId {
             }
         });
     }
+    /**
+     * Update a book
+     * @param id book unique id
+     * @param data new data for a book fields to update
+     * @returns void or throw an error
+     */
     static updateOne(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             this.validateId(id);
@@ -75,6 +100,11 @@ class Book extends ValidateId_1.ValidateId {
             }
         });
     }
+    /**
+     *
+     * @param data updated values for a book update
+     * @returns part of a SQL query needed for a update, (key = value) pairs
+     */
     static generateUpdateQuery(data) {
         const updateValues = Object.entries(data)
             .filter(([_, value]) => value != null)
@@ -82,10 +112,16 @@ class Book extends ValidateId_1.ValidateId {
             .join(', ');
         return updateValues;
     }
-    static validateData(data) {
+    /**
+     *
+     * @param data values for a book creation or update
+     * @param validationMethodsMap list of a methods needed for a validation, maped by class properties (prop: function)
+     * @returns void or throw an error if validation fails
+     */
+    static validateData(data, validationMethodsMap = this.validationMethodsMap) {
         Object.entries(data)
             .filter(([_, value]) => value != null)
-            .forEach(([key, value]) => Book.validationMethodsMap[key](value));
+            .forEach(([key, value]) => validationMethodsMap[key](value));
     }
     static validatePrice(price) {
         if (!price || price <= 0) {
@@ -109,6 +145,9 @@ class Book extends ValidateId_1.ValidateId {
     }
 }
 exports.Book = Book;
+/**
+ * Map to store validation methods for a class properties
+ */
 Book.validationMethodsMap = {
     price: Book.validatePrice,
     author: Book.validateAuthor,
