@@ -116,7 +116,7 @@ class Book extends ValidateId_1.ValidateId {
      *
      * @param data values for a book creation or update
      * @param validationMethodsMap list of a methods needed for a validation, maped by class properties (prop: function)
-     * @returns void or throw an error if validation fails
+     * @returns void or throw an error if one of the validation methods fails
      */
     static validateData(data, validationMethodsMap = this.validationMethodsMap) {
         Object.entries(data)

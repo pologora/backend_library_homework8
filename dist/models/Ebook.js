@@ -10,6 +10,11 @@ class Ebook extends Book_1.Book {
         this.format = format;
         this.fileSize = fileSize;
     }
+    /**
+     * Polymorphism!
+     * @param data ebook properties
+     * @returns void or throw an error if one of the validation method fails
+     */
     static validateData(data) {
         super.validateData(data, _a.validationMethodsMap);
     }
