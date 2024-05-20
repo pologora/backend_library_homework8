@@ -15,7 +15,7 @@ This REST API is designed using a class-based model approach to ensure clean and
 - **GET /users** - Retrieve all users.
 - **GET /users/:id** - Retrieve a single user by ID.
 - **POST /users** - Create a new user.
-- **PUT /users/:id** - Update an existing user by ID.
+- **PATCH /users/:id** - Update an existing user by ID.
 - **DELETE /users/:id** - Delete a user by ID.
 
 ### Books:
@@ -23,7 +23,7 @@ This REST API is designed using a class-based model approach to ensure clean and
 - **GET /books** - Retrieve all books.
 - **GET /books/:id** - Retrieve a single book by ID.
 - **POST /books** - Create a new book.
-- **PUT /books/:id** - Update an existing book by ID.
+- **PATCH /books/:id** - Update an existing book by ID.
 - **DELETE /books/:id** - Delete a book by ID.
 
 ### Front-end:
