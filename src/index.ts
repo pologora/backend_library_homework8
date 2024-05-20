@@ -3,6 +3,7 @@ import { booksRouter } from './routes/booksRouter';
 import { AppError } from './utils/AppError';
 import { globalErrorHandler } from './controllers/errorController';
 import { usersRouter } from './routes/usersRouter';
+import cors from 'cors';
 
 process.on('uncaughtException', (err) => {
   console.error(err.name, err.message);
@@ -11,8 +12,13 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+const corsOptions = {
+  origin: ['http://localhost:5173', 'https://homework8classes.netlify.app'],
+};
+
 const app = express();
 app.use(express.json());
+app.use(cors(corsOptions));
 
 app.use('/api/v1/books', booksRouter);
 app.use('/api/v1/users', usersRouter);

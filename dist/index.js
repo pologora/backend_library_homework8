@@ -8,13 +8,18 @@ const booksRouter_1 = require("./routes/booksRouter");
 const AppError_1 = require("./utils/AppError");
 const errorController_1 = require("./controllers/errorController");
 const usersRouter_1 = require("./routes/usersRouter");
+const cors_1 = __importDefault(require("cors"));
 process.on('uncaughtException', (err) => {
     console.error(err.name, err.message);
     console.log('UNHANDLER EXEPTION! Shutting down...');
     process.exit(1);
 });
+const corsOptions = {
+    origin: ['http://localhost:5173', 'https://homework8classes.netlify.app'],
+};
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)(corsOptions));
 app.use('/api/v1/books', booksRouter_1.booksRouter);
 app.use('/api/v1/users', usersRouter_1.usersRouter);
 app.use('*', (req, res, next) => {
