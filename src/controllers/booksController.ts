@@ -20,10 +20,22 @@ export const createNewBook = async (req: Request, res: Response, next: NextFunct
   const { price, author, quantity, title, format, fileSize } = req.body;
 
   if (format && fileSize) {
-    const book = new Ebook({ price, author, quantity, title, format, fileSize });
+    const book = new Ebook({
+      price: Number(price),
+      author,
+      quantity: Number(quantity),
+      title,
+      format,
+      fileSize: Number(fileSize),
+    });
     await Ebook.createOne(book);
   } else {
-    const book = new Book({ price, author, quantity, title });
+    const book = new Book({
+      price: Number(price),
+      author,
+      quantity: Number(quantity),
+      title,
+    });
     await Book.createOne(book);
   }
 

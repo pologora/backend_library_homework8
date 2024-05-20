@@ -27,11 +27,23 @@ exports.getBookById = getBookById;
 const createNewBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { price, author, quantity, title, format, fileSize } = req.body;
     if (format && fileSize) {
-        const book = new Ebook_1.Ebook({ price, author, quantity, title, format, fileSize });
+        const book = new Ebook_1.Ebook({
+            price: Number(price),
+            author,
+            quantity: Number(quantity),
+            title,
+            format,
+            fileSize: Number(fileSize),
+        });
         yield Ebook_1.Ebook.createOne(book);
     }
     else {
-        const book = new Book_1.Book({ price, author, quantity, title });
+        const book = new Book_1.Book({
+            price: Number(price),
+            author,
+            quantity: Number(quantity),
+            title,
+        });
         yield Book_1.Book.createOne(book);
     }
     res.status(httpStatusCodes_1.httpStatusCodes.created).json({ status: 'success' });
